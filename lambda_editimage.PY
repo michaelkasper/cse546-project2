@@ -13,13 +13,20 @@ s3 = boto3.client('s3')
 
 def lambda_handler(event, context):
     #READING PARAMETERS FROM THE REQUEST DICT
-    event_id = event['queryStringParameters']['id']
-    image_data = event['queryStringParameters']['imageData']
-    qr_text = event['queryStringParameters']['qrText']
-    qr_position_x,qr_position_y = (event['queryStringParameters']['qrPositionX'],event['queryStringParameters']['qrPositionY'])
-    img_w,img_h = (event['queryStringParameters']['imgSizeW'],event['queryStringParameters']['imgSizeH'])
-    qr_w,qr_h = (event['queryStringParameters']['qrSizeW'],event['queryStringParameters']['qrSizeH'])
 
+    # event_id = event['queryStringParameters']['id']
+    # image_data = event['queryStringParameters']['imageData']
+    # qr_text = event['queryStringParameters']['qrText']
+    # qr_position_x,qr_position_y = (event['queryStringParameters']['qrPositionX'],event['queryStringParameters']['qrPositionY'])
+    # img_w,img_h = (event['queryStringParameters']['imgSizeW'],event['queryStringParameters']['imgSizeH'])
+    # qr_w,qr_h = (event['queryStringParameters']['qrSizeW'],event['queryStringParameters']['qrSizeH'])
+
+    event_id = event['body']['id']
+    image_data = event['body']['imageData']
+    qr_text = event['body']['qrText']
+    qr_position_x,qr_position_y = (event['body']['qrPositionX'],event['body']['qrPositionY'])
+    img_w,img_h = (event['body']['imgSizeW'],event['body']['imgSizeH'])
+    qr_w,qr_h = (event['body']['qrSizeW'],event['body']['qrSizeH'])
     #GRABBING AND PROCESSING THE INPUT IMAGE TO ADD QR CODE INTO IT
 
     #resizing input image to given dimensions
@@ -44,10 +51,11 @@ def lambda_handler(event, context):
     final_img.paste(qr_img,(int(qr_position_x),int(qr_position_y)))
 
     #CONSTRUCTING THE BODY OF THE RESPONSE
+
     edit_response = {}
     edit_response['id'] = event_id
     edit_response['embedded_link'] = qr_text
-    edit_response['edited_image'] = final_img.toString('base64') 
+    edit_response['edited_image'] = final_img.toString('base64')
 
     #CONSTRUCTING THE FULL RESPONSE
     responseObject = {}
