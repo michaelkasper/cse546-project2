@@ -1,0 +1,11 @@
+{
+  "name": "image-tagger",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "start": "docker run -p 9000:8080 image-tagger",
+    "test": "python3 lambda_function.py",
+    "build": "docker build -t image-tagger .",
+    "deploy": "docker tag  image-tagger:latest 415900791134.dkr.ecr.us-east-1.amazonaws.com/image-tagger:latest && docker push 415900791134.dkr.ecr.us-east-1.amazonaws.com/image-tagger:latest"
+  }
+}

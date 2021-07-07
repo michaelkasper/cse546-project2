@@ -1,8 +1,11 @@
 import React, { useEffect, useState } from "react";
-// import { httpGateway } from "./services/httpGateway";
+import config from './services/config';
+import { httpGateway } from "./services/httpGateway";
 import { ProgressBar } from "./ProgressBar";
-import { Grid, Tooltip } from "@material-ui/core";
+import { CircularProgress, Grid, Tooltip } from "@material-ui/core";
 import { makeStyles } from "@material-ui/styles";
+import fileDownload from "js-file-download";
+import Button from "@material-ui/core/Button";
 
 
 const useStyles = makeStyles( {
@@ -14,30 +17,49 @@ const useStyles = makeStyles( {
 
 export const Request = ( { request } ) => {
     const classes                   = useStyles();
+    const [ status, setStatus ]     = useState( 'pending' );
     const [ progress, setProgress ] = useState( null );
+    const [ newImage, setNewImage ] = useState( null );
 
 
     useEffect( () => {
-        ( async () => {
-            let formData = new FormData();
+        if ( status === 'pending' ) {
+            setStatus( 'processing' );
+            ( async () => {
+                let formData = new FormData();
 
-            formData.append( "file", request.imageData.currentFile );
+                formData.append( 'qrText', request.qrText );
+                formData.append( 'qrPositionX', request.qrPosition.x );
+                formData.append( 'qrPositionY', request.qrPosition.y );
+                formData.append( 'imgSizeW', request.imgSize.width );
+                formData.append( 'imgSizeH', request.imgSize.height );
+                formData.append( 'qrSizeW', request.qrSize.width );
+                formData.append( 'qrSizeH', request.qrSize.height );
+                formData.append( "image", request.imageData.currentFile );
 
-            setProgress( 0 );
+                setProgress( 0 );
 
-            // await httpGateway.post( "/upload", formData, {
-            //     headers         : {
-            //         "Content-Type": "multipart/form-data",
-            //     },
-            //     onUploadProgress: ( event ) => {
-            //         setProgress( Math.round( ( 100 * event.loaded ) / event.total ) );
-            //     }
-            // } );
-            //
-            // setProgress( null );
-        } )();
+                const response = await httpGateway.post( config.API, formData, {
+                    responseType    : 'arraybuffer',
+                    headers         : {
+                        "Content-Type": "multipart/form-data",
+                        "Accept"      : "*/*",
+                    },
+                    onUploadProgress: ( event ) => {
+                        setProgress( Math.round( ( 100 * event.loaded ) / event.total ) );
+                    }
+                } );
 
+                setNewImage( response.data );
+                setStatus( 'complete' );
+            } )();
+        }
     }, [] );
+
+
+    const onDownload = () => {
+        fileDownload( newImage, 'filename.png', "image/png" );
+    }
 
     return <div className={ classes.root }>
         <Grid container spacing={ 3 }
@@ -51,11 +73,27 @@ export const Request = ( { request } ) => {
                     <img width={ '40px' } src={ '/preview-qr.svg' }/>
                 </Tooltip>
             </Grid>
-            <Grid item xs={ 9 }>
+            <Grid item xs={ 6 }>
                 {
                     progress != null &&
                     <ProgressBar progress={ progress }/>
                 }
+            </Grid>
+            <Grid item xs={ 3 }>
+                {
+                    !!newImage &&
+                    <Button variant="contained" color="secondary" fullWidth={ true } onClick={ onDownload }>
+                        Download
+                    </Button>
+                }
+
+
+                {
+                    !newImage &&
+                    progress === 100 &&
+                    <CircularProgress color="secondary"/>
+                }
+
             </Grid>
         </Grid>
     </div>

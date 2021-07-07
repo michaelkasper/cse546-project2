@@ -35,8 +35,8 @@ const useStyles = makeStyles( {
     },
     previewDrag   : {
         position     : 'absolute',
-        bottom       : 10,
-        right        : 10,
+        top          : 0,
+        left         : 0,
         cursor       : 'move',
         width        : 50,
         height       : 50,
@@ -81,6 +81,8 @@ export const RequestForm = ( { img, onUpload: doUpload } ) => {
             height: img.offsetHeight,
             width : img.offsetWidth
         } )
+
+        setQrPosition( { x: img.offsetWidth - 20 - 50, y: img.offsetHeight - 20 - 50 } )
     }
 
     const onQrTextChange = ( e ) => {
@@ -143,14 +145,11 @@ export const RequestForm = ( { img, onUpload: doUpload } ) => {
                 />
             </div>
 
-
             <div className={ classes.submitBtn }>
                 <Button variant="contained" color="secondary" fullWidth={ true } onClick={ onUpload }>
                     Lets do this, Tag It!
                 </Button>
             </div>
-
-
         </div>
     );
 }
