@@ -27,37 +27,46 @@ export const Request = ( { request } ) => {
     const [ progress, setProgress ] = useState( null );
     const [ newImage, setNewImage ] = useState( null );
 
+
+    const sendRequest = async () => {
+        setStatus( 'processing' );
+
+        let formData = new FormData();
+
+        formData.append( 'qrText', request.qrText );
+        formData.append( 'qrPositionX', request.qrPosition.x );
+        formData.append( 'qrPositionY', request.qrPosition.y );
+        formData.append( 'imgSizeW', request.imgSize.width );
+        formData.append( 'imgSizeH', request.imgSize.height );
+        formData.append( 'qrSizeW', request.qrSize.width );
+        formData.append( 'qrSizeH', request.qrSize.height );
+        formData.append( "image", request.imageData.currentFile );
+
+        setProgress( 0 );
+
+        try {
+            const response = await httpGateway.post( config.API, formData, {
+                responseType    : 'arraybuffer',
+                headers         : {
+                    "Content-Type": "multipart/form-data",
+                    "Accept"      : "*/*",
+                },
+                onUploadProgress: ( event ) => {
+                    setProgress( Math.round( ( 100 * event.loaded ) / event.total ) );
+                }
+            } );
+
+
+            setNewImage( response.data );
+            setStatus( 'complete' );
+        } catch ( e ) {
+            setStatus( 'error' );
+        }
+    }
+
     useEffect( () => {
         if ( status === 'pending' ) {
-            setStatus( 'processing' );
-            ( async () => {
-                let formData = new FormData();
-
-                formData.append( 'qrText', request.qrText );
-                formData.append( 'qrPositionX', request.qrPosition.x );
-                formData.append( 'qrPositionY', request.qrPosition.y );
-                formData.append( 'imgSizeW', request.imgSize.width );
-                formData.append( 'imgSizeH', request.imgSize.height );
-                formData.append( 'qrSizeW', request.qrSize.width );
-                formData.append( 'qrSizeH', request.qrSize.height );
-                formData.append( "image", request.imageData.currentFile );
-
-                setProgress( 0 );
-
-                const response = await httpGateway.post( config.API, formData, {
-                    responseType    : 'arraybuffer',
-                    headers         : {
-                        "Content-Type": "multipart/form-data",
-                        "Accept"      : "*/*",
-                    },
-                    onUploadProgress: ( event ) => {
-                        setProgress( Math.round( ( 100 * event.loaded ) / event.total ) );
-                    }
-                } );
-
-                setNewImage( response.data );
-                setStatus( 'complete' );
-            } )();
+            sendRequest();
         }
     }, [] );
 
@@ -92,20 +101,36 @@ export const Request = ( { request } ) => {
             </Grid>
             <Grid item xs={ 3 }>
 
-                <Button
-                    className={ classNames( 'download-btn', { 'hide': !newImage } ) }
-                    variant="contained"
-                    color="secondary"
-                    fullWidth={ true }
-                    onClick={ onDownload }
-                    data-download-name={ request.imageData.currentFile.name }
-                >
-                    Download
-                </Button>
+                {
+                    status !== 'error' &&
+                    <Button
+                        className={ classNames( 'download-btn', { 'hide': !newImage } ) }
+                        variant="contained"
+                        color="secondary"
+                        fullWidth={ true }
+                        onClick={ onDownload }
+                        data-download-name={ request.imageData.currentFile.name }
+                    >
+                        Download
+                    </Button>
+                }
 
                 {
-                    !newImage &&
+                    !newImage && status !== 'error' &&
                     <CircularProgress color="secondary" classes={ 'waiting' }/>
+                }
+
+
+                {
+                    status === 'error' &&
+                    <Button
+                        variant="contained"
+                        color="primary"
+                        fullWidth={ true }
+                        onClick={ sendRequest }
+                    >
+                        Error, Try again
+                    </Button>
                 }
 
             </Grid>

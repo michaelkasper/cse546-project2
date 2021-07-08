@@ -30,7 +30,7 @@ def send_request(image, image_dir, results_dir):
         response = requests.post(config['REACT_APP_API'], files=payload)
         # Print error message if failed
         if response.status_code != 200:
-            print('sendErr: ' + response.url)
+            print('sendErr: ' + image)
         else:
             with open('img.png', 'wb') as out_file:
                 result_name = "(100, 100) " + image.replace(".jpeg", ".png").replace(".jpg", ".png")

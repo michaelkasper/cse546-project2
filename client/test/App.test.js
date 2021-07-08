@@ -6,6 +6,13 @@ const delay       = require( './utilities/delay' );
 const makeRequest = require( './utilities/makeRequest' );
 const getQRCode   = require( './utilities/getQRCode' );
 const qrCodes     = require( './qr-codes.json' );
+const fileSyncCmp = require( "file-sync-cmp" );
+
+
+const getMessage = ( image ) => {
+    const result = /^\[(?<messageIndex>[\-0-9]*)\]/.exec( image );
+    return qrCodes[ result.groups?.messageIndex ];
+}
 
 
 describe( 'Test UI', () => {
@@ -14,9 +21,8 @@ describe( 'Test UI', () => {
     const resultsDir         = __dirname + '/images/results/';
     const expectedResultsDir = __dirname + '/images/expected-results/';
 
-    console.log( imageDir );
-
-    const images = ( fsSync.readdirSync( imageDir ) ).filter( str => /(\.jpg|\.jpeg|\.png)$/.test( str ) ).slice( 0, 5 );
+    const images          = ( fsSync.readdirSync( imageDir ) ).filter( str => /(\.jpg|\.jpeg|\.png)$/.test( str ) ).slice( 0, 5 );
+    const expectedResults = ( fsSync.readdirSync( expectedResultsDir ) ).filter( str => /(\.png)$/.test( str ) );
 
     const positions = [
         [ 100, 100 ], [ 20, 50 ], [ 300, 200 ]
@@ -37,7 +43,7 @@ describe( 'Test UI', () => {
         } );
 
         if ( fsSync.existsSync( resultsDir ) ) {
-            await fs.rmdir( resultsDir, { recursive: true } );
+            await fs.rm( resultsDir, { recursive: true } );
         }
 
         await page.goto( config.WEB );
@@ -61,30 +67,21 @@ describe( 'Test UI', () => {
     }, 900000 );
 
 
-    const expectedResults = ( fsSync.readdirSync( expectedResultsDir ) ).filter( str => /(\.png)$/.test( str ) ).slice( 0, 1 );
+    test.each( expectedResults )( 'Testing Image: %s', ( expectedResult ) => {
+        expect( fileSyncCmp.equalFiles( expectedResultsDir + expectedResult, resultsDir + expectedResult ) ).toBe( true )
+    }, 900000 );
 
-    expectedResults.forEach( expectedResult => {
-        test( 'Testing Image: ' + expectedResult, async () => {
-            if ( fsSync.existsSync( resultsDir + expectedResult ) ) {
 
-                expect( fsSync.readFileSync( expectedResultsDir + expectedResult ) )
-                    .toEqual( fsSync.readFileSync( resultsDir + expectedResult ) );
-
-            } else {
-                fail( `missing ${ expectedResult } result` );
-            }
-
+    test.each(
+        expectedResults.map( expectedResult => {
+            return [
+                expectedResult,
+                getMessage( expectedResult )
+            ];
         } )
-    } );
-
-
-    expectedResults.forEach( expectedResult => {
-        const messageIndex = /^\[(?<messageIndex>[\-0-9]*)\]/.exec( expectedResult )?.groups?.messageIndex;
-        const message      = qrCodes[ messageIndex ];
-        test( 'Testing Code: ' + expectedResult + ' -> ' + message, async () => {
-            const qrCode = await getQRCode( resultsDir + expectedResult );
-            expect( qrCode.data ).toEqual( message );
-        } )
+    )( 'Testing Code: %s -> %s', async ( expectedResult, message ) => {
+        const qrCode = await getQRCode( resultsDir + expectedResult );
+        expect( qrCode.data ).toEqual( message );
     } );
 
 } );
