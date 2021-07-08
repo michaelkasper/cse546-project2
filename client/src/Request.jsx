@@ -6,11 +6,17 @@ import { CircularProgress, Grid, Tooltip } from "@material-ui/core";
 import { makeStyles } from "@material-ui/styles";
 import fileDownload from "js-file-download";
 import Button from "@material-ui/core/Button";
+import classNames from "classnames";
 
 
 const useStyles = makeStyles( {
-    root: {
+    root     : {
         width: 648
+    },
+    '@global': {
+        '.hide': {
+            display: 'none !important'
+        }
     }
 } );
 
@@ -20,7 +26,6 @@ export const Request = ( { request } ) => {
     const [ status, setStatus ]     = useState( 'pending' );
     const [ progress, setProgress ] = useState( null );
     const [ newImage, setNewImage ] = useState( null );
-
 
     useEffect( () => {
         if ( status === 'pending' ) {
@@ -57,8 +62,14 @@ export const Request = ( { request } ) => {
     }, [] );
 
 
-    const onDownload = () => {
-        fileDownload( newImage, 'filename.png', "image/png" );
+    const onDownload = ( e ) => {
+        if ( !!newImage ) {
+            const downloadName = ( e.target.dataset.downloadName || request.id + '.png' )
+                .replace( /\.jpeg$/, ".png" )
+                .replace( /\.jpg$/, ".png" );
+
+            fileDownload( newImage, downloadName, "image/png" );
+        }
     }
 
     return <div className={ classes.root }>
@@ -80,18 +91,21 @@ export const Request = ( { request } ) => {
                 }
             </Grid>
             <Grid item xs={ 3 }>
-                {
-                    !!newImage &&
-                    <Button variant="contained" color="secondary" fullWidth={ true } onClick={ onDownload }>
-                        Download
-                    </Button>
-                }
 
+                <Button
+                    className={ classNames( 'download-btn', { 'hide': !newImage } ) }
+                    variant="contained"
+                    color="secondary"
+                    fullWidth={ true }
+                    onClick={ onDownload }
+                    data-download-name={ request.imageData.currentFile.name }
+                >
+                    Download
+                </Button>
 
                 {
                     !newImage &&
-                    progress === 100 &&
-                    <CircularProgress color="secondary"/>
+                    <CircularProgress color="secondary" classes={ 'waiting' }/>
                 }
 
             </Grid>

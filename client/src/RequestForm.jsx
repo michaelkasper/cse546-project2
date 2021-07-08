@@ -107,8 +107,9 @@ export const RequestForm = ( { img, onUpload: doUpload } ) => {
     }
 
     return (
-        <div className={ classes.root }>
-            <div className={ classes.previewWrapper } style={ { height: imgSize.height, width: imgSize.width } }>
+        <div className={ classes.root } id={ 'request-form' }>
+            <div id={ 'preview-wrapper' } className={ classes.previewWrapper }
+                 style={ { height: imgSize.height, width: imgSize.width } }>
                 <img
                     width={ '100%' }
                     className={ classes.previewImg }
@@ -117,6 +118,7 @@ export const RequestForm = ( { img, onUpload: doUpload } ) => {
                     onDragStart={ ( e ) => {
                         e.preventDefault();
                     } }
+                    id={ 'preview-image' }
                 />
                 <Draggable
                     bounds={ 'parent' }
@@ -134,6 +136,7 @@ export const RequestForm = ( { img, onUpload: doUpload } ) => {
             </div>
             <div className={ classes.input }>
                 <TextField
+                    id={'qr-code-message'}
                     label="URL for QR-Code"
                     fullWidth={ true }
                     variant="outlined"
@@ -146,7 +149,7 @@ export const RequestForm = ( { img, onUpload: doUpload } ) => {
             </div>
 
             <div className={ classes.submitBtn }>
-                <Button variant="contained" color="secondary" fullWidth={ true } onClick={ onUpload }>
+                <Button id={'submit-request'} variant="contained" color="secondary" fullWidth={ true } onClick={ onUpload }>
                     Lets do this, Tag It!
                 </Button>
             </div>

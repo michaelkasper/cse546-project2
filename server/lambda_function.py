@@ -1,6 +1,7 @@
 import base64
 import logging
 import re
+import sys
 from io import BytesIO
 
 import qrcode
@@ -49,9 +50,9 @@ def lambda_handler(event, context):
 
         image_data = payload['image']
         qr_text = payload['qrText']
-        qr_position = (int(payload['qrPositionX']), int(payload['qrPositionY']))
-        img_dimensions = (int(payload['imgSizeW']), int(payload['imgSizeH']))
-        qr_dimensions = (int(payload['qrSizeW']), int(payload['qrSizeH']))
+        qr_position = (int(float(payload['qrPositionX'])), int(float(payload['qrPositionY'])))
+        img_dimensions = (int(float(payload['imgSizeW'])), int(float(payload['imgSizeH'])))
+        qr_dimensions = (int(float(payload['qrSizeW'])), int(float(payload['qrSizeH'])))
 
         image = Image.open(BytesIO(image_data))
         image_resize = image.resize(img_dimensions)
@@ -69,14 +70,14 @@ def lambda_handler(event, context):
             'isBase64Encoded': True
         }
 
+    except ValueError as e:
+        logger.info(e)
     except:
-        return {
-            'headers': {
-                "Access-Control-Allow-Origin": "*",
-                "Content-Type": "image/jpeg"
-            },
-            'statusCode': 400
-        }
+        logger.info(sys.exc_info()[0])
+
+    return {
+        'statusCode': 400
+    }
 
 # for local testing
 #

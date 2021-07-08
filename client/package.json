@@ -3,9 +3,10 @@
   "version": "5.0.0",
   "private": true,
   "scripts": {
-    "start": "env-cmd --fallback -f ./.env.local react-scripts start",
-    "build": "env-cmd --fallback -f ./.env.local react-scripts build",
-    "test": "env-cmd --fallback -f ./.env.local react-scripts test",
+    "start": "env-cmd --file ../.env --fallback -f ../.env.local react-scripts start",
+    "build": "env-cmd --file ../.env --fallback -f ../.env.local react-scripts build",
+    "test-old": "env-cmd --file ../.env --fallback -f ../.env.local react-scripts test",
+    "test": "env-cmd --file ../.env --fallback -f ../.env.local jest",
     "eject": "react-scripts eject",
     "deploy": "aws s3 sync build/ s3://cse546-image-tagger --acl public-read"
   },
@@ -36,5 +37,15 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "devDependencies": {
+    "jest": "^26.6.0",
+    "jest-cli": "^26.6.3",
+    "jsqr": "^1.4.0",
+    "puppeteer": "^10.1.0",
+    "upng-js": "^1.0.1"
+  },
+  "jest": {
+    "verbose": true
   }
 }
