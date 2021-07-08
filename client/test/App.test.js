@@ -32,7 +32,7 @@ describe( 'Test UI', () => {
         let browser = await puppeteer.launch( {
             defaultViewport: null,
             headless       : false,
-            devtools       : true,
+            devtools       : false,
             // slowMo         : 150
         } );
         let page    = await browser.newPage();
