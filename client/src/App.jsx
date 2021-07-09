@@ -108,6 +108,9 @@ export const App = () => {
                     <Button
                         className="start-over"
                         component="span"
+                        onClick={ () => {
+                            setPreviewImg( {} )
+                        } }
                     >Start Over</Button>
                 }
 

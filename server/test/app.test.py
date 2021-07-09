@@ -1,5 +1,6 @@
 import argparse
 import datetime
+import filecmp
 import os
 from concurrent.futures import ThreadPoolExecutor
 
@@ -7,7 +8,20 @@ from utilities.send_request import send_request
 
 cwd = os.getcwd()
 image_dir = cwd + '/../images/'
-results_dir = cwd + '/test/results/'
+expected_results_dir = cwd + '/test/images/expected-results/'
+results_dir = cwd + '/test/images/results/'
+
+
+class bcolors:
+    HEADER = '\033[95m'
+    OKBLUE = '\033[94m'
+    OKCYAN = '\033[96m'
+    OKGREEN = '\033[92m'
+    WARNING = '\033[93m'
+    FAIL = '\033[91m'
+    ENDC = '\033[0m'
+    BOLD = '\033[1m'
+    UNDERLINE = '\033[4m'
 
 
 def send_multiple_requests(num_request):
@@ -60,3 +74,15 @@ if __name__ == '__main__':
 
     print("# DELTA")
     print('{} minutes, {} seconds'.format(minutes, seconds))
+    print("----------------------------")
+
+    for i, name in enumerate(os.listdir(results_dir)):
+        if not name.startswith('.'):
+            if os.path.exists(expected_results_dir + name):
+                same = filecmp.cmp(results_dir + name, expected_results_dir + name)
+                if same:
+                    print(bcolors.OKGREEN + u'\u2713' + " -> " + name + bcolors.ENDC)
+                else:
+                    print(bcolors.FAIL + "X -> " + name + bcolors.ENDC)
+            else:
+                print(bcolors.FAIL + "X -> " + name + bcolors.ENDC)

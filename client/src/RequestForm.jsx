@@ -4,6 +4,7 @@ import { makeStyles } from "@material-ui/styles";
 import { TextField, Tooltip } from "@material-ui/core";
 import classNames from "classnames";
 import Button from "@material-ui/core/Button";
+import validator from 'validator'
 
 
 const useStyles = makeStyles( {
@@ -136,7 +137,8 @@ export const RequestForm = ( { img, onUpload: doUpload } ) => {
             </div>
             <div className={ classes.input }>
                 <TextField
-                    id={'qr-code-message'}
+                    error={ qrText !== '' && !validator.isURL( qrText ) }
+                    id={ 'qr-code-message' }
                     label="URL for QR-Code"
                     fullWidth={ true }
                     variant="outlined"
@@ -149,7 +151,8 @@ export const RequestForm = ( { img, onUpload: doUpload } ) => {
             </div>
 
             <div className={ classes.submitBtn }>
-                <Button id={'submit-request'} variant="contained" color="secondary" fullWidth={ true } onClick={ onUpload }>
+                <Button id={ 'submit-request' } variant="contained" color="secondary" fullWidth={ true }
+                        onClick={ onUpload } disabled={ !validator.isURL( qrText ) }>
                     Lets do this, Tag It!
                 </Button>
             </div>
