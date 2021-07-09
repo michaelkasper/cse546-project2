@@ -44,21 +44,6 @@ def convert_to_png(image):
     return buf.getvalue()
 
 
-def is_valid_request(qr_text, qr_position, img_dimensions, qr_dimensions):
-    if (
-            not qr_text or
-            qr_position[0] < 0 or
-            qr_position[1] < 0 or
-            img_dimensions[0] < 1 or
-            img_dimensions[1] < 1 or
-            qr_position[0] + qr_dimensions[0] > img_dimensions[0] or
-            qr_position[1] + qr_dimensions[1] > img_dimensions[1]
-    ):
-        return False
-
-    return True
-
-
 def lambda_handler(event, context):
     try:
         payload = decode_payload(event)
