@@ -8,6 +8,7 @@ import { makeStyles } from '@material-ui/styles';
 import { RequestForm } from "./RequestForm";
 import { Grid } from "@material-ui/core";
 import { Request } from "./Request";
+import Alert from '@material-ui/lab/Alert';
 
 const useStyles = makeStyles( {
     root          : {
@@ -41,14 +42,24 @@ const useStyles = makeStyles( {
 export const App = () => {
     const classes = useStyles();
 
+    const [ fileError, setFileError ]   = useState( null );
     const [ previewImg, setPreviewImg ] = useState( {} );
     const [ requests, setRequests ]     = useState( [] );
 
     const onSelectFile = ( event ) => {
-        setPreviewImg( {
-            currentFile: event.target.files[ 0 ],
-            img        : URL.createObjectURL( event.target.files[ 0 ] )
-        } );
+        const file = event.target.files[ 0 ];
+        setFileError( null );
+
+        if ( file ) {
+            if ( file.size < 4 * 1048576 ) {
+                setPreviewImg( {
+                    currentFile: event.target.files[ 0 ],
+                    img        : URL.createObjectURL( event.target.files[ 0 ] )
+                } );
+            } else {
+                setFileError( "File too large" );
+            }
+        }
     }
 
     const onUpload = async ( { qrText, qrPosition, imgSize, qrSize } ) => {
@@ -61,6 +72,7 @@ export const App = () => {
             imgSize,
             qrSize
         } ] );
+        setFileError( null );
         setPreviewImg( {} );
     }
 
@@ -85,21 +97,33 @@ export const App = () => {
             <div className={ classes.actionBar }>
                 {
                     !previewImg?.img &&
-                    <label htmlFor="btn-upload">
-                        <input
-                            id="btn-upload"
-                            name="btn-upload"
-                            style={ { display: 'none' } }
-                            type="file"
-                            accept="image/*"
-                            onChange={ onSelectFile }/>
-                        <Button
-                            className="btn-choose"
-                            variant="outlined"
-                            component="span">
-                            Choose Image
-                        </Button>
-                    </label>
+                    <>
+                        {
+                            fileError &&
+                            <>
+                                <Alert severity="error">{ fileError }</Alert>
+                                <hr/>
+                            </>
+                        }
+
+                        <label htmlFor="btn-upload">
+                            <input
+                                id="btn-upload"
+                                name="btn-upload"
+                                style={ { display: 'none' } }
+                                type="file"
+                                accept="image/jpg, image/jpeg, image/png"
+                                onChange={ onSelectFile }/>
+                            <Button
+                                className="btn-choose"
+                                variant="outlined"
+                                component="span">
+                                Choose Image
+                            </Button>
+                        </label>
+
+
+                    </>
                 }
 
 
@@ -109,7 +133,8 @@ export const App = () => {
                         className="start-over"
                         component="span"
                         onClick={ () => {
-                            setPreviewImg( {} )
+                            setFileError( null );
+                            setPreviewImg( {} );
                         } }
                     >Start Over</Button>
                 }

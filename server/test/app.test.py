@@ -2,6 +2,7 @@ import argparse
 import datetime
 import filecmp
 import os
+import shutil
 from concurrent.futures import ThreadPoolExecutor
 
 from utilities.send_request import send_request
@@ -58,6 +59,11 @@ if __name__ == '__main__':
     parser.add_argument('--num_request', type=int, help='one image per request')
     args, leftovers = parser.parse_known_args()
 
+    if os.path.exists(results_dir):
+        shutil.rmtree(results_dir)
+
+    os.mkdir(results_dir)
+
     if args.bulk is not None:
         send_multiple_requests(args.num_request)
     else:
@@ -76,9 +82,9 @@ if __name__ == '__main__':
     print('{} minutes, {} seconds'.format(minutes, seconds))
     print("----------------------------")
 
-    for i, name in enumerate(os.listdir(results_dir)):
+    for i, name in enumerate(os.listdir(expected_results_dir)):
         if not name.startswith('.'):
-            if os.path.exists(expected_results_dir + name):
+            if os.path.exists(results_dir + name):
                 same = filecmp.cmp(results_dir + name, expected_results_dir + name)
                 if same:
                     print(bcolors.OKGREEN + u'\u2713' + " -> " + name + bcolors.ENDC)
