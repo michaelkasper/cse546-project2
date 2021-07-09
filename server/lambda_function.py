@@ -53,7 +53,13 @@ def lambda_handler(event, context):
         qr_position = (int(float(payload['qrPositionX'])), int(float(payload['qrPositionY'])))
         img_dimensions = (int(float(payload['imgSizeW'])), int(float(payload['imgSizeH'])))
         qr_dimensions = (int(float(payload['qrSizeW'])), int(float(payload['qrSizeH'])))
+        #error check on dimensions
+        if (qr_position[0] + qr_dimensions[0] > img_dimensions[0] or qr_position[1] + qr_dimensions[1] > img_dimensions[1]):
+            return {
+                'statusCode': 400
+            }
 
+            
         image = Image.open(BytesIO(image_data))
         image_resize = image.resize(img_dimensions)
 
