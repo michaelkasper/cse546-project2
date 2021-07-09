@@ -44,6 +44,24 @@ def convert_to_png(image):
     return buf.getvalue()
 
 
+def validate_request(qr_text, qr_position, img_dimensions, qr_dimensions):
+    if not qr_text:
+        raise ValueError('missing url')
+
+    if qr_position[0] < 0 or qr_position[1] < 0:
+        raise ValueError('bad qr position')
+
+    if (
+            img_dimensions[0] < 1 or
+            img_dimensions[1] < 1 or
+            qr_position[0] + qr_dimensions[0] > img_dimensions[0] or
+            qr_position[1] + qr_dimensions[1] > img_dimensions[1]
+    ):
+        raise ValueError('image too small')
+
+    return True
+
+
 def lambda_handler(event, context):
     try:
         payload = decode_payload(event)
@@ -55,36 +73,9 @@ def lambda_handler(event, context):
         qr_dimensions = (int(float(payload['qrSizeW'])), int(float(payload['qrSizeH'])))
 
         # error check
-        if not qr_text:
-            return {
-                'statusCode': 400,
-                'body': 'missing url'
-            }
+        validate_request(qr_text, qr_position, img_dimensions, qr_dimensions)
 
-        if qr_position[0] < 0 or qr_position[1] < 0:
-            return {
-                'statusCode': 400,
-                'body': 'bad qr position'
-            }
-
-        if (
-                img_dimensions[0] < 1 or
-                img_dimensions[1] < 1 or
-                qr_position[0] + qr_dimensions[0] > img_dimensions[0] or
-                qr_position[1] + qr_dimensions[1] > img_dimensions[1]
-        ):
-            return {
-                'statusCode': 400,
-                'body': 'image too small'
-            }
-
-        try:
-            image = Image.open(BytesIO(image_data))
-        except (IOError, SyntaxError) as e:
-            return {
-                'statusCode': 400,
-                'body': 'bad image'
-            }
+        image = Image.open(BytesIO(image_data))
 
         image_resize = image.resize(img_dimensions)
 
@@ -106,6 +97,12 @@ def lambda_handler(event, context):
         return {
             'statusCode': 400,
             'body': e
+        }
+    except (IOError, SyntaxError) as e:
+        logger.info(e)
+        return {
+            'statusCode': 400,
+            'body': 'bad image'
         }
     except:
         logger.info(sys.exc_info()[0])
