@@ -7,7 +7,7 @@
     "test": "python3 test/app.test.py --num_request 100",
     "test:bulk": "python3 test/app.test.py --num_request 100 --bulk",
     "build": "docker build -t image-tagger .",
-    "docker.deploy": "docker tag  image-tagger:latest 415900791134.dkr.ecr.us-east-1.amazonaws.com/image-tagger:latest && docker push 415900791134.dkr.ecr.us-east-1.amazonaws.com/image-tagger:latest",
-    "docker.auth": "aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 415900791134.dkr.ecr.us-east-1.amazonaws.com"
+    "docker:deploy": "docker tag  image-tagger:latest 415900791134.dkr.ecr.us-east-1.amazonaws.com/image-tagger:latest && docker push 415900791134.dkr.ecr.us-east-1.amazonaws.com/image-tagger:latest",
+    "docker:auth": "aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 415900791134.dkr.ecr.us-east-1.amazonaws.com"
   }
 }

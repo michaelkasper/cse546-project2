@@ -21,11 +21,11 @@ describe( 'Test UI', () => {
     const resultsDir         = __dirname + '/images/results/';
     const expectedResultsDir = __dirname + '/images/expected-results/';
 
-    const images          = ( fsSync.readdirSync( imageDir ) ).filter( str => /(\.jpg|\.jpeg|\.png)$/.test( str ) ).slice( 0, 5 );
+    const images          = ( fsSync.readdirSync( imageDir ) ).filter( str => /(\.jpg|\.jpeg|\.png)$/.test( str ) ).slice( 0, 3 );
     const expectedResults = ( fsSync.readdirSync( expectedResultsDir ) ).filter( str => /(\.png)$/.test( str ) );
 
     const positions = [
-        [ 100, 100 ], [ 20, 50 ], [ 300, 200 ]
+        [ 100, 100 ], [ 20, 50 ], [ 400, 150 ]
     ];
 
     beforeAll( async () => {
@@ -64,6 +64,7 @@ describe( 'Test UI', () => {
         } ) );
 
         await delay( 2000 );
+
     }, 900000 );
 
 
