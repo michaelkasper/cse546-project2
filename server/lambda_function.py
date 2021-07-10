@@ -81,6 +81,8 @@ def lambda_handler(event, context):
         # error check
         validate_request(qr_text, qr_position, img_dimensions, qr_dimensions, qr_boarder)
 
+        qr_text = re.sub("^(?!https?:\/\/)", "http://", qr_text.decode('utf-8'), 1)
+
         image = Image.open(BytesIO(image_data))
 
         image_resize = image.resize(img_dimensions)
@@ -98,11 +100,17 @@ def lambda_handler(event, context):
             'isBase64Encoded': True
         }
 
+    except TypeError as e:
+        logger.info(e)
+        return {
+            'statusCode': 400,
+            'body': str(e.args)
+        }
     except ValueError as e:
         logger.info(e)
         return {
             'statusCode': 400,
-            'body': str(e)
+            'body': str(e.args)
         }
     except (IOError, SyntaxError) as e:
         logger.info(e)

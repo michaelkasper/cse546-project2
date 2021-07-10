@@ -143,18 +143,23 @@ export const App = () => {
             </div>
 
 
-            <div className={ classes.requestList }>
-                <Grid containerequestListr spacing={ 3 }>
-                    {
-                        requests.map( request => (
-                            <Grid item xs={ 12 } key={ request.id }>
-                                <Request request={ request }/>
-                            </Grid>
+            {
+                requests.length > 0 &&
+                <div className={ classes.requestList }>
+                    <hr/>
+                    <Grid containerequestListr spacing={ 3 }>
+                        {
+                            requests.map( request => (
+                                <Grid item xs={ 12 } key={ request.id }>
+                                    <Request request={ request }/>
+                                </Grid>
 
-                        ) )
-                    }
-                </Grid>
-            </div>
+                            ) )
+                        }
+                    </Grid>
+                </div>
+
+            }
 
         </Container>
     );
