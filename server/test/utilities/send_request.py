@@ -22,8 +22,9 @@ def send_request(image, image_dir, results_dir):
         "qrPositionY": (None, str(100)),
         "imgSizeW": (None, str(600)),
         "imgSizeH": (None, str((600 * width) / height)),
-        "qrSizeW": (None, str(50)),
-        "qrSizeH": (None, str(50))
+        "qrSizeW": (None, str(63 + 4 + 4)),
+        "qrSizeH": (None, str(63 + 4 + 4)),
+        "qrBoarder": (None, str(4)),
     }
 
     try:

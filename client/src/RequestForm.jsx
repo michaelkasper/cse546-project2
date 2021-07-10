@@ -6,6 +6,8 @@ import classNames from "classnames";
 import Button from "@material-ui/core/Button";
 import validator from 'validator'
 
+const qrSize    = 63;
+const qrBoarder = 4;
 
 const useStyles = makeStyles( {
     root          : {
@@ -39,8 +41,8 @@ const useStyles = makeStyles( {
         top          : 0,
         left         : 0,
         cursor       : 'move',
-        width        : 50,
-        height       : 50,
+        width        : qrSize + qrBoarder + qrBoarder,
+        height       : qrSize + qrBoarder + qrBoarder,
         padding      : 5,
         '& img.pulse': {
             transform: 'scale(1)',
@@ -83,7 +85,10 @@ export const RequestForm = ( { img, onUpload: doUpload } ) => {
             width : img.offsetWidth
         } )
 
-        setQrPosition( { x: img.offsetWidth - 20 - 50, y: img.offsetHeight - 20 - 50 } )
+        setQrPosition( {
+            x: img.offsetWidth - 20 - ( qrSize + qrBoarder + qrBoarder ),
+            y: img.offsetHeight - 20 - ( qrSize + qrBoarder + qrBoarder )
+        } )
     }
 
     const onQrTextChange = ( e ) => {
@@ -100,9 +105,10 @@ export const RequestForm = ( { img, onUpload: doUpload } ) => {
             qrText,
             qrPosition,
             imgSize,
+            qrBoarder,
             qrSize: {
-                width : 50,
-                height: 50
+                width : ( qrSize + qrBoarder + qrBoarder ),
+                height: ( qrSize + qrBoarder + qrBoarder )
             }
         } );
     }

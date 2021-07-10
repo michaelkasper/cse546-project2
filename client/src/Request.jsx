@@ -40,6 +40,7 @@ export const Request = ( { request } ) => {
         formData.append( 'imgSizeH', request.imgSize.height );
         formData.append( 'qrSizeW', request.qrSize.width );
         formData.append( 'qrSizeH', request.qrSize.height );
+        formData.append( 'qrBoarder', request.qrBoarder );
         formData.append( "image", request.imageData.currentFile );
 
         setProgress( 0 );

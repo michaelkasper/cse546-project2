@@ -62,13 +62,14 @@ export const App = () => {
         }
     }
 
-    const onUpload = async ( { qrText, qrPosition, imgSize, qrSize } ) => {
+    const onUpload = async ( { qrText, qrPosition, imgSize, qrSize, qrBoarder } ) => {
 
         setRequests( [ ...requests, {
             id       : uuid(),
             imageData: previewImg,
             qrText,
             qrPosition,
+            qrBoarder,
             imgSize,
             qrSize
         } ] );

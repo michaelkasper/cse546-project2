@@ -25,12 +25,14 @@ def decode_payload(event):
     return payload
 
 
-def create_qr_code(message, dimensions):
+def create_qr_code(message, dimensions, qr_boarder):
+    # qr v1 is a 21x21 dot square
+
     qr = qrcode.QRCode(
         version=1,
         error_correction=qrcode.constants.ERROR_CORRECT_H,
-        box_size=10,
-        border=4,
+        box_size=round(((dimensions[0] - (qr_boarder * 2)) / 21), 0),
+        border=qr_boarder,
     )
     qr.add_data(message)
     qr.make(fit=True)
@@ -44,7 +46,7 @@ def convert_to_png(image):
     return buf.getvalue()
 
 
-def validate_request(qr_text, qr_position, img_dimensions, qr_dimensions):
+def validate_request(qr_text, qr_position, img_dimensions, qr_dimensions, qr_boarder):
     if not qr_text:
         raise ValueError('missing url')
 
@@ -59,6 +61,9 @@ def validate_request(qr_text, qr_position, img_dimensions, qr_dimensions):
     ):
         raise ValueError('image too small')
 
+    if qr_boarder < 0:
+        raise ValueError('invalid qr boarder')
+
     return True
 
 
@@ -69,17 +74,18 @@ def lambda_handler(event, context):
         image_data = payload['image']
         qr_text = payload['qrText']
         qr_position = (int(float(payload['qrPositionX'])), int(float(payload['qrPositionY'])))
+        qr_boarder = int(float(payload['qrBoarder']))
         img_dimensions = (int(float(payload['imgSizeW'])), int(float(payload['imgSizeH'])))
         qr_dimensions = (int(float(payload['qrSizeW'])), int(float(payload['qrSizeH'])))
 
         # error check
-        validate_request(qr_text, qr_position, img_dimensions, qr_dimensions)
+        validate_request(qr_text, qr_position, img_dimensions, qr_dimensions, qr_boarder)
 
         image = Image.open(BytesIO(image_data))
 
         image_resize = image.resize(img_dimensions)
 
-        qr_img = create_qr_code(qr_text, qr_dimensions)
+        qr_img = create_qr_code(qr_text, qr_dimensions, qr_boarder)
 
         image_resize.paste(qr_img, qr_position)
 
@@ -96,7 +102,7 @@ def lambda_handler(event, context):
         logger.info(e)
         return {
             'statusCode': 400,
-            'body': e
+            'body': str(e)
         }
     except (IOError, SyntaxError) as e:
         logger.info(e)
@@ -108,7 +114,7 @@ def lambda_handler(event, context):
         logger.info(sys.exc_info()[0])
         return {
             'statusCode': 500,
-            'body': sys.exc_info()[0]
+            'body': str(sys.exc_info()[0])
         }
 
 # for local testing
