@@ -30,5 +30,26 @@ module.exports = async ( page, imageDir, image, position, message ) => {
     const resultName = buildResultName( image, position, messageIndex );
     await page.$eval( `.download-btn[data-download-name="${ image }"]`, ( e, resultName ) => {
         e.setAttribute( "data-download-name", resultName )
-    }, resultName )
+
+        let isHiding   = e.classList.contains( 'hide' );
+        const observer = new MutationObserver( ( mutations ) => {
+            mutations.forEach( ( mutation ) => {
+                if ( mutation.attributeName === "class" ) {
+                    const currentIsHiding = mutation.target.classList.contains( 'hide' );
+                    if ( isHiding !== currentIsHiding ) {
+                        isHiding = currentIsHiding;
+                        if ( !isHiding ) {
+                            e.click();
+                            observer.disconnect();
+                        }
+                    }
+                }
+            } );
+        } );
+        observer.observe( e, { attributes: true } );
+
+    }, resultName );
+
+    await delay( 100 );
+
 }

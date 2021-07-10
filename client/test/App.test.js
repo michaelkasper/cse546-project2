@@ -21,7 +21,7 @@ describe( 'Test UI', () => {
     const resultsDir         = __dirname + '/images/results/';
     const expectedResultsDir = __dirname + '/images/expected-results/';
 
-    const images          = ( fsSync.readdirSync( imageDir ) ).filter( str => /(\.jpg|\.jpeg|\.png)$/.test( str ) ).slice( 0, 3 );
+    const images          = ( fsSync.readdirSync( imageDir ) ).filter( str => /(\.jpg|\.jpeg|\.png)$/.test( str ) ).slice( 0, 5 );
     const expectedResults = ( fsSync.readdirSync( expectedResultsDir ) ).filter( str => /(\.png)$/.test( str ) );
 
     const positions = [
@@ -57,11 +57,7 @@ describe( 'Test UI', () => {
 
         await delay( 2000 );
 
-        await page.waitForFunction( () => document.getElementsByClassName( 'download-btn' ).length > 0 && document.querySelectorAll( '.download-btn.hide' ).length === 0 );
-
-        await page.$$eval( '.download-btn', elHandles => elHandles.forEach( el => {
-            el.click();
-        } ) );
+        await page.waitForFunction( () => document.getElementsByClassName( 'download-btn' ).length > 0 && document.querySelectorAll( '.download-btn.hide' ).length === 0, { timeout: 30000 } );
 
         await delay( 2000 );
 
